@@ -18,4 +18,11 @@ In this project, I will use **Account** as an example
 - swagger
 
 ## Steps
-1. 
+we will work on cloud side first
+1. create project **cloud**
+2. install swagger and mongodb through Nuget
+3. create **Account** and **AccountHistory** entities. (Ref to *Data* directory)
+4. add db setting in appsetting.json
+5. update *Startup.cs* for using mongo db (Ref [here](https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mongo-app?view=aspnetcore-3.1&tabs=visual-studio))
+6. update *Startup.cs* for using swagger (Ref [here](https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-3.1&tabs=visual-studio))
+7. create controller with api **Sync** and **Update**
