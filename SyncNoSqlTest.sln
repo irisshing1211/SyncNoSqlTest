@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cloud", "cloud\cloud.csproj", "{E7AD657F-7AC9-48CF-BD5E-C86BE1489875}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "client\client.csproj", "{DDE055EB-B608-47EF-9EB5-B41818277623}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E7AD657F-7AC9-48CF-BD5E-C86BE1489875}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7AD657F-7AC9-48CF-BD5E-C86BE1489875}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7AD657F-7AC9-48CF-BD5E-C86BE1489875}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7AD657F-7AC9-48CF-BD5E-C86BE1489875}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDE055EB-B608-47EF-9EB5-B41818277623}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDE055EB-B608-47EF-9EB5-B41818277623}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDE055EB-B608-47EF-9EB5-B41818277623}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDE055EB-B608-47EF-9EB5-B41818277623}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C647C102-591C-4C06-A12E-E28BBE8AB1BC}
+	EndGlobalSection
+EndGlobal
