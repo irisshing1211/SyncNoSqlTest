@@ -28,7 +28,7 @@ namespace cloud
             services.Configure<DbSettings>(Configuration.GetSection(nameof(DbSettings)));
             services.AddSingleton<IDbSettings>(sp => sp.GetRequiredService<IOptions<DbSettings>>().Value);
             services.AddSingleton<CloudServerContext>();
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();;
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cloud API", Version = "v1" });

@@ -16,6 +16,8 @@ namespace cloud.Services
 
         public bool SyncUpdate() { return false; }
 
+        public List<Account> GetList() => _ctx.Accounts.AsQueryable().ToList();
+
         public bool Add(AccountRequestModel req)
         {
             try
@@ -47,12 +49,23 @@ namespace cloud.Services
             try
             {
                 var update = await _ctx.Accounts.AsQueryable().FirstOrDefaultAsync(a => a.Id == req.Id.Value);
-                var old = update;
+
+                var old = new Account
+                {
+                    Id = update.Id,
+                    Address = update.Address,
+                    Name = update.Name,
+                    Tel = update.Tel,
+                    CreatedAt = update.CreatedAt,
+                    UpdatedAt = update.UpdatedAt
+                };
+
                 update.Address = req.Address;
                 update.Name = req.Name;
                 update.Tel = req.Tel;
                 update.UpdatedAt = DateTime.Now;
                 _ctx.Accounts.ReplaceOne(a => a.Id == req.Id, update);
+                UpdateHistory(old, update);
 
                 return true;
             }
@@ -69,6 +82,7 @@ namespace cloud.Services
             try
             {
                 _ctx.Accounts.DeleteOne(a => a.Id == id);
+                DeleteHistory(id);
 
                 return true;
             }
@@ -97,14 +111,15 @@ namespace cloud.Services
         private bool UpdateHistory(Account old, Account update)
         {
             Dictionary<string, string> updateList = new Dictionary<string, string>();
+            var props = old.GetType().GetProperties();
 
-            foreach (var prop in old.GetType().GetProperties())
+            foreach (var prop in props)
             {
                 var propName = prop.Name;
                 var oldVal = old.GetType().GetProperty(propName).GetValue(old);
                 var newVal = update.GetType().GetProperty(propName).GetValue(update);
 
-                if (oldVal != newVal)
+                if (!oldVal.Equals(newVal))
                     updateList.Add(propName, newVal.ToString());
             }
 

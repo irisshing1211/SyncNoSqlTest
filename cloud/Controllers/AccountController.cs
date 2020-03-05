@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using cloud.Entities;
 using cloud.Models;
@@ -19,6 +20,9 @@ namespace cloud.Controllers
             _ctx = ctx;
             _service = new AccountServices(ctx);
         }
+
+        [HttpGet("List")]
+        public List<Account> GetList() =>  _service.GetList();
 
         [HttpPost]
         public bool Add(AccountRequestModel req) => _service.Add(req);
