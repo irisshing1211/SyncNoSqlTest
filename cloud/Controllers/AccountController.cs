@@ -20,7 +20,6 @@ namespace cloud.Controllers
             _ctx = ctx;
             _service = new AccountServices(ctx);
         }
-
         [HttpGet("List")]
         public List<Account> GetList() =>  _service.GetList();
 

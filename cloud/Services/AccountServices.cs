@@ -14,7 +14,7 @@ namespace cloud.Services
     {
         public AccountServices(CloudServerContext ctx) : base(ctx) {}
 
-        public bool SyncUpdate() { return false; }
+      
 
         public List<Account> GetList() => _ctx.Accounts.AsQueryable().ToList();
 
