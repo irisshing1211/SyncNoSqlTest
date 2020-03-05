@@ -20,5 +20,7 @@ namespace cloud.Entities
 
        public IMongoCollection<AccountHistory> AccountHistories =>
            _db.GetCollection<AccountHistory>("AccountHistories");
+
+       public IMongoCollection<LogHistory> Logs => _db.GetCollection<LogHistory>("Logs");
     }
 }
