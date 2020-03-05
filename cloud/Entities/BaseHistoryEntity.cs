@@ -11,7 +11,7 @@ namespace cloud.Entities
         /// <summary>
         /// log time
         /// </summary>
-        public TimeSpan Time { get; set; }
+        public DateTime Time { get; set; }
         /// <summary>
         /// data json string
         /// </summary>
