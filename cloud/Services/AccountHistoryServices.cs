@@ -4,12 +4,12 @@ using System.Linq;
 using cloud.Entities;
 using cloud.Models;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 
 namespace cloud.Services
 {
     public class AccountHistoryServices : BaseServices
     {
-
         public AccountHistoryServices(CloudServerContext ctx) : base(ctx) {}
 
         public List<AccountHistory> GetHistories(DateTime from, DateTime? to)
@@ -25,15 +25,70 @@ namespace cloud.Services
         public bool SyncUpdate(AccountSyncUpdateRequestModel req)
         {
             // get histories since req.last sync
+            var histories = _ctx.AccountHistories.AsQueryable()
+                                .Where(a => (req.LastSync.HasValue && a.Time > req.LastSync.Value) || true)
+                                .ToList();
+
             // if count ==0
-            // then update db and add history directly
-            
-            // else if count >0
-            // insert the req.history into the histories list + order by time
-            // filter the list with accountid
-            // check if any delete
-            // if no then convert the data to object and run the list again to update the related account
+            if (histories.Count == 0)
+            {
+                // then update db and add history directly
+            }
+            else
+            {
+                // else if count >0
+                // insert the req.history into the histories list + order by time
+                // filter the list with accountid
+                // check if any delete
+                // if no then convert the data to object and run the list again to update the related account
+            }
+
             return false;
         }
+
+        #region function
+
+        private bool UpdateAccount(AccountSyncModel req)
+        {
+            try
+            {
+                switch (req.Action)
+                {
+                    case HistoryAction.Insert:
+                        var insert = JsonConvert.DeserializeObject<Account>(req.Data);
+                        _ctx.Accounts.InsertOne(insert);
+
+                        break;
+                    case HistoryAction.Delete:
+                        _ctx.Accounts.DeleteOne(a => a.Id == req.AccountId);
+
+                        break;
+                    case HistoryAction.Update:
+                        Dictionary<string, string> data =
+                            JsonConvert.DeserializeObject<Dictionary<string, string>>(req.Data);
+
+                        var update = _ctx.Accounts.Find(a => a.Id == req.AccountId).FirstOrDefault();
+
+                        foreach (var field in data)
+                        {
+                            update.GetType().GetProperty(field.Key).SetValue(update, field.Value);
+                        }
+
+                        _ctx.Accounts.ReplaceOne(a => a.Id == req.AccountId, update);
+
+                        break;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                WriteLog(ex.Message);
+
+                return false;
+            }
+        }
+
+        #endregion
     }
 }
