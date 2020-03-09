@@ -24,6 +24,10 @@ namespace cloud.Controllers
         public List<AccountHistory> Sync(DateTime from, DateTime? to) => _historyService.GetHistories(from, to);
 
         [HttpPost]
-        public List<AccountHistory> UpdateSync(AccountSyncUpdateRequestModel req) { return new List<AccountHistory>(); }
+        public List<AccountHistory> UpdateSync(AccountSyncUpdateRequestModel req)
+        {
+            _historyService.SyncUpdate(req);
+            return  new List<AccountHistory>();
+        }
     }
 }

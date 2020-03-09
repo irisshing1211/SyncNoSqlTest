@@ -26,13 +26,14 @@ namespace cloud.Services
         {
             // get histories since req.last sync
             var histories = _ctx.AccountHistories.AsQueryable()
-                                .Where(a => (req.LastSync.HasValue && a.Time > req.LastSync.Value) || true)
+                                .Where(a => (req.LastSync.HasValue && a.Time > req.LastSync.Value) || !req.LastSync.HasValue)
                                 .ToList();
 
             // if count ==0
             if (histories.Count == 0)
             {
                 // then update db and add history directly
+                UpdateAccount(req.History);
             }
             else
             {
@@ -42,7 +43,14 @@ namespace cloud.Services
                 // check if any delete
                 // if no then convert the data to object and run the list again to update the related account
             }
-
+            var history = new AccountHistory
+            {
+                Time = req.History.Time,
+                Action = req.History.Action,
+                Data = req.History.Data,
+                AccountId = req.History.AccountId ?? Guid.Empty
+            };
+            _ctx.AccountHistories.InsertOne(history);
             return false;
         }
 
