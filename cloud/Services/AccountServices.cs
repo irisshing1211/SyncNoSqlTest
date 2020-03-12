@@ -32,8 +32,11 @@ namespace cloud.Services
                     UpdatedAt = DateTime.Now
                 };
 
-                _ctx.Accounts.InsertOne(insert);
-                new AddAccountEvent(_ctx,insert).Push();
+                if (new AddAccountEvent(_ctx, insert).Push()) { _ctx.Accounts.InsertOne(insert); }
+                else
+                {
+                    throw new Exception("Fail to add event");
+                }
 
                 return true;
             }
@@ -65,8 +68,15 @@ namespace cloud.Services
                 update.Name = req.Name;
                 update.Tel = req.Tel;
                 update.UpdatedAt = DateTime.Now;
-                _ctx.Accounts.ReplaceOne(a => a.Id == req.Id, update);
-                new UpdateAccountEvent(_ctx, old, update).Push();
+
+                if (new UpdateAccountEvent(_ctx, old, update).Push())
+                {
+                    _ctx.Accounts.ReplaceOne(a => a.Id == req.Id, update);
+                }
+                else
+                {
+                    throw new Exception("Fail to add event");
+                }
 
                 return true;
             }
@@ -82,9 +92,11 @@ namespace cloud.Services
         {
             try
             {
-                _ctx.Accounts.DeleteOne(a => a.Id == id);
-                new DeleteAccountEvent(_ctx, id).Push();
-
+                if (new DeleteAccountEvent(_ctx, id).Push()) { _ctx.Accounts.DeleteOne(a => a.Id == id); }
+                else
+                {
+                    throw new Exception("Fail to add event");
+                }
                 return true;
             }
             catch (Exception ex)
