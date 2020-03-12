@@ -22,27 +22,14 @@ namespace cloud.Services
             return list.OrderBy(a => a.Time).ToList();
         }
 
-        public bool SyncUpdate(AccountSyncUpdateRequestModel req)
+        public List<AccountHistory> SyncUpdate(AccountSyncUpdateRequestModel req)
         {
             // get histories since req.last sync
             var histories = _ctx.AccountHistories.AsQueryable()
-                                .Where(a => (req.LastSync.HasValue && a.Time > req.LastSync.Value) || !req.LastSync.HasValue)
+                                .Where(a => (req.LastSync.HasValue && a.Time > req.LastSync.Value) ||
+                                            !req.LastSync.HasValue)
                                 .ToList();
 
-            // if count ==0
-            if (histories.Count == 0)
-            {
-                // then update db and add history directly
-                UpdateAccount(req.History);
-            }
-            else
-            {
-                // else if count >0
-                // insert the req.history into the histories list + order by time
-                // filter the list with accountid
-                // check if any delete
-                // if no then convert the data to object and run the list again to update the related account
-            }
             var history = new AccountHistory
             {
                 Time = req.History.Time,
@@ -50,8 +37,42 @@ namespace cloud.Services
                 Data = req.History.Data,
                 AccountId = req.History.AccountId ?? Guid.Empty
             };
+
+            // if count ==0 or is not updating the account
+            if (histories.Count == 0 || req.History.Action != HistoryAction.Update)
+            {
+                // then update db and add history directly
+                UpdateAccount(req.History);
+            }
+
+            // else
+            else
+            {
+                // insert the req.history into the histories list + order by time
+                var accountHistories = histories.Where(a => a.AccountId == history.AccountId).ToList();
+                accountHistories.Add(history);
+
+                // filter the list with accountid
+                accountHistories = accountHistories.OrderBy(a => a.Time).ToList();
+
+                // check if any delete, if no then
+                if (accountHistories.All(a => a.Action != HistoryAction.Delete))
+                {
+                    // get account form db
+                    var update = _ctx.Accounts.AsQueryable().FirstOrDefault(a => a.Id == req.History.AccountId);
+
+                    // run the list again to update the related account
+
+                    // foreach history in list
+                    foreach (var h in histories) { update = UpdateAccountByData(update, h.Data); }
+
+                    _ctx.Accounts.ReplaceOne(a => a.Id == update.Id, update);
+                }
+            }
+
             _ctx.AccountHistories.InsertOne(history);
-            return false;
+
+            return histories;
         }
 
         #region function
@@ -72,16 +93,8 @@ namespace cloud.Services
 
                         break;
                     case HistoryAction.Update:
-                        Dictionary<string, string> data =
-                            JsonConvert.DeserializeObject<Dictionary<string, string>>(req.Data);
-
                         var update = _ctx.Accounts.Find(a => a.Id == req.AccountId).FirstOrDefault();
-
-                        foreach (var field in data)
-                        {
-                            update.GetType().GetProperty(field.Key).SetValue(update, field.Value);
-                        }
-
+                        update = UpdateAccountByData(update, req.Data);
                         _ctx.Accounts.ReplaceOne(a => a.Id == req.AccountId, update);
 
                         break;
@@ -95,6 +108,15 @@ namespace cloud.Services
 
                 return false;
             }
+        }
+
+        private Account UpdateAccountByData(Account account, string stored)
+        {
+            Dictionary<string, string> data = JsonConvert.DeserializeObject<Dictionary<string, string>>(stored);
+
+            foreach (var field in data) { account.GetType().GetProperty(field.Key).SetValue(account, field.Value); }
+
+            return account;
         }
 
         #endregion
