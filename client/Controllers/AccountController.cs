@@ -1,9 +1,12 @@
 using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using client.Command;
 using client.Entities;
 using client.Models;
 using client.Models.CommandModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace client.Controllers
 {
@@ -11,22 +14,22 @@ namespace client.Controllers
     [Route("[controller]")]
     public class AccountController : ControllerBase
     {
-        private readonly ClientServerContext _ctx;
         private AccountCommandHandler _cmd;
 
-        public AccountController(ClientServerContext ctx)
+        public AccountController(ClientServerContext ctx,
+                                 IHttpClientFactory clientFactory,
+                                 IOptions<SyncSetting> syncSetting)
         {
-            _ctx = ctx;
-            _cmd = new AccountCommandHandler(ctx);
+            _cmd = new AccountCommandHandler(ctx, clientFactory, syncSetting.Value.CloudUrl);
         }
 
         [HttpPost]
-        public bool Add(AccountRequestModel req) => _cmd.Handle(new AddAccountCommand(req));
+        public async Task<bool> Add(AccountRequestModel req) => await _cmd.Handle(new AddAccountCommand(req));
 
         [HttpPut]
-        public bool Update(AccountRequestModel req) => _cmd.Handle(new UpdateAccountCommand(req));
+        public async Task<bool> Update(AccountRequestModel req) =>await _cmd.Handle(new UpdateAccountCommand(req));
 
         [HttpDelete]
-        public bool Delete(Guid id) => _cmd.Handle(new DeleteAccountCommand(id));
+        public async Task<bool> Delete(Guid id) =>await _cmd.Handle(new DeleteAccountCommand(id));
     }
 }

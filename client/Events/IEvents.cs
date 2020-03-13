@@ -1,7 +1,9 @@
+using System.Threading.Tasks;
+
 namespace client.Events
 {
     public interface IEvents
     {
-        bool Push();
+       Task<bool> Push();
     }
 }

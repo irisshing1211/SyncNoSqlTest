@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using client.Entities;
 
 namespace client.Events
@@ -9,10 +10,10 @@ namespace client.Events
 
     public DeleteAccountEvent(ClientServerContext ctx, Guid id) : base(ctx) { _id = id; }
 
-    public bool Push()
+    public async  Task<bool> Push()
     {
         var insert = new AccountHistory {Time = DateTime.Now, Action = HistoryAction.Delete, AccountId = _id};
-        Ctx.AccountHistories.InsertOne(insert);
+   await     Ctx.AccountHistories.InsertOneAsync(insert);
 
         return true;
     }

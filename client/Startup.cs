@@ -30,12 +30,15 @@ namespace client
         {
             services.Configure<DbSettings>(Configuration.GetSection(nameof(DbSettings)));
             services.AddSingleton<IDbSettings>(sp => sp.GetRequiredService<IOptions<DbSettings>>().Value);
+            services.Configure<SyncSetting>(Configuration.GetSection(nameof(SyncSetting)));
+            services.AddSingleton<ISyncSetting>(sp => sp.GetRequiredService<IOptions<SyncSetting>>().Value);
             services.AddSingleton<ClientServerContext>();
             services.AddControllers().AddNewtonsoftJson();;
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Client API", Version = "v1" });
             });
+            services.AddHttpClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

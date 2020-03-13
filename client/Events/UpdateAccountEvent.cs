@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using client.Entities;
 using Newtonsoft.Json;
 
@@ -14,7 +15,7 @@ namespace client.Events
             _target = target;
         }
 
-        public bool Push()
+        public async Task<bool> Push()
         {
             Dictionary<string, string> updateList = new Dictionary<string, string>();
             var props = _old.GetType().GetProperties();
@@ -37,7 +38,7 @@ namespace client.Events
                 Data = JsonConvert.SerializeObject(updateList)
             };
 
-            Ctx.AccountHistories.InsertOne(insert);
+          await  Ctx.AccountHistories.InsertOneAsync(insert);
 
             return false;
         }
