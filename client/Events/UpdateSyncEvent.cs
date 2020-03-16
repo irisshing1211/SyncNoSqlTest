@@ -8,6 +8,9 @@ using Newtonsoft.Json;
 
 namespace client.Events
 {
+    /// <summary>
+    /// call cloud update with sync api to update data to cloud + get latest histories
+    /// </summary>
     public class UpdateSyncEvent : IEvents
     {
         private List<AccountHistory> _histories;

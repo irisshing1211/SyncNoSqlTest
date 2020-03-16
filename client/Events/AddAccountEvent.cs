@@ -1,9 +1,13 @@
 using System.Threading.Tasks;
 using client.Entities;
+using client.Repository;
 using Newtonsoft.Json;
 
 namespace client.Events
 {
+    /// <summary>
+    /// add add account history
+    /// </summary>
     public class AddAccountEvent : BaseEvent, IEvents
     {
         private readonly Account _target;
@@ -18,8 +22,10 @@ namespace client.Events
                 Time = _target.CreatedAt, Data = JsonConvert.SerializeObject(_target), Action = HistoryAction.Insert
             };
 
-          await  Ctx.AccountHistories.InsertOneAsync(insert);
-          _history = insert;
+            var repo = new AccountHistoryRepository(Ctx);
+            await repo.AddHistory(insert);
+            _history = insert;
+
             return true;
         }
     }

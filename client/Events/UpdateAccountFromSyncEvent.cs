@@ -7,6 +7,9 @@ using Newtonsoft.Json;
 
 namespace client.Events
 {
+    /// <summary>
+    /// add histories from cloud to local db history
+    /// </summary>
     public class UpdateAccountFromSyncEvent : IEvents
     {
         private readonly List<AccountHistory> _histories;
