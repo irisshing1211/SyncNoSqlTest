@@ -8,16 +8,15 @@ using Newtonsoft.Json;
 
 namespace client.Events
 {
-    public class UpdateSyncEvent:IEvents
+    public class UpdateSyncEvent : IEvents
     {
         private List<AccountHistory> _histories;
         private readonly AccountSyncModel _req;
         private readonly IHttpClientFactory _clientFactory;
         private readonly string _url;
         private readonly DateTime? _lastSync;
-        
+
         public List<AccountHistory> Histories => _histories;
-        
 
         public UpdateSyncEvent(IHttpClientFactory clientFactory, AccountSyncModel req, string url, DateTime? lastSync)
         {
@@ -30,7 +29,6 @@ namespace client.Events
         public async Task<bool> Push()
         {
             var request = new HttpRequestMessage(HttpMethod.Post, _url);
-
             var client = _clientFactory.CreateClient();
 
             var response = await client.PostAsync(_url,

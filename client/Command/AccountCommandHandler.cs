@@ -17,12 +17,12 @@ namespace client.Command
         private readonly ClientServerContext _ctx;
         private readonly string _url;
         private string InsertUrl => Path.Combine(_url, "AccountSync");
+
         public AccountCommandHandler(ClientServerContext ctx, IHttpClientFactory clientFactory, string url)
         {
             _ctx = ctx;
             _clientFactory = clientFactory;
             _url = url;
-
         }
 
         public async Task<bool> Handle(AddAccountCommand cmd)
@@ -38,41 +38,50 @@ namespace client.Command
             };
 
             var addAccEvent = new AddAccountEvent(_ctx, acc);
+
             if (await addAccEvent.Push())
             {
                 var repo = new AccountRepository(_ctx);
                 repo.Add(acc);
 
-                await new UpdateSyncEvent(_clientFactory,
-                                          new AccountSyncModel
-                                          {
-                                              Action = HistoryAction.Insert,
-                                              Data = addAccEvent.History.Data,
-                                              Time = acc.CreatedAt
-                                          },
-                                          InsertUrl,
-                                          null).Push();
+                var syncEvent = new UpdateSyncEvent(_clientFactory,
+                                                    new AccountSyncModel
+                                                    {
+                                                        Action = HistoryAction.Insert,
+                                                        Data = addAccEvent.History.Data,
+                                                        Time = acc.CreatedAt
+                                                    },
+                                                    InsertUrl,
+                                                    null);
 
-                return true;
+                if (await syncEvent.Push())
+                {
+                    var updateEvent = new UpdateAccountFromSyncEvent(_ctx, syncEvent.Histories);
+
+                    if (await updateEvent.Push())
+                        return true;
+                }
             }
-            else { return false; }
+
+            return false;
         }
 
         public async Task<bool> Handle(UpdateAccountCommand cmd)
         {
-            var repo=new AccountRepository(_ctx);
+            var repo = new AccountRepository(_ctx);
             var old = repo.GetOne(cmd.AccountId);
+
             var update = new Account
             {
-                Id=cmd.AccountId,
+                Id = cmd.AccountId,
                 Name = cmd.Name,
                 Address = cmd.Address,
-                Tel=cmd.Tel,
+                Tel = cmd.Tel,
                 CreatedAt = old.CreatedAt,
                 UpdatedAt = DateTime.Now
             };
 
-            if ( await new UpdateAccountEvent(_ctx, old, update).Push())
+            if (await new UpdateAccountEvent(_ctx, old, update).Push())
             {
                 repo.Update(update);
 
@@ -85,7 +94,7 @@ namespace client.Command
         {
             if (await new DeleteAccountEvent(_ctx, cmd.AccountId).Push())
             {
-                var repo=new AccountRepository(_ctx);
+                var repo = new AccountRepository(_ctx);
                 repo.Delete(cmd.AccountId);
 
                 return true;
