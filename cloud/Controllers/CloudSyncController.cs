@@ -20,8 +20,8 @@ namespace cloud.Controllers
             _historyService = new AccountHistoryServices(ctx);
         }
 
-        [HttpGet]
-        public List<AccountHistory> Sync(DateTime from, DateTime? to) => _historyService.GetHistories(from, to);
+        [HttpPost("Sync")]
+        public List<AccountHistory> Sync(SyncRequestModel req) => _historyService.GetHistories(req);
 
         [HttpPost]
         public List<AccountHistory> UpdateSync(AccountSyncUpdateRequestModel req)=>  _historyService.SyncUpdate(req);

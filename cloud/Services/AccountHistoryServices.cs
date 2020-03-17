@@ -12,12 +12,15 @@ namespace cloud.Services
     {
         public AccountHistoryServices(CloudServerContext ctx) : base(ctx) {}
 
-        public List<AccountHistory> GetHistories(DateTime from, DateTime? to)
+        public List<AccountHistory> GetHistories(SyncRequestModel req)
         {
-            var list = _ctx.AccountHistories.AsQueryable().Where(a => a.Time > from);
+            var list = _ctx.AccountHistories.AsQueryable().AsQueryable();
 
-            if (to.HasValue)
-                list = list.Where(a => a.Time <= to.Value);
+            if (req.From.HasValue)
+                list = list.Where(a => a.Time > req.From.Value).AsQueryable();
+
+            if (req.To.HasValue)
+                list = list.Where(a => a.Time <= req.To.Value);
 
             return list.OrderBy(a => a.Time).ToList();
         }

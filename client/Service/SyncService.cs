@@ -43,10 +43,24 @@ namespace client.Service
         {
             _logger.LogInformation("Timed Hosted Service is working. {Time}", DateTime.Now.ToString());
             var repo = new AccountHistoryRepository(_ctx);
-            var syncEvent = new SyncEvent(_clientFactory, $"{_setting.CloudUrl}/AccountSync", repo.LastSync());
-            await syncEvent.Push();
-            _logger.LogInformation($"{syncEvent.Histories.Count} histories received.");
-            await repo.AddHistories(syncEvent.Histories);
+
+            try
+            {
+                var syncEvent = new UpdateSyncEvent(_clientFactory,
+                                                    new SyncRequestModel {From = repo.LastSync()},
+                                                    $"{_setting.CloudUrl}/AccountSync/Sync");
+
+                await syncEvent.Push();
+                _logger.LogInformation($"{syncEvent.Histories.Count} histories received.");
+
+                // add histories to db
+                await repo.AddHistories(syncEvent.Histories);
+
+                // update db
+                var updateEvent = new UpdateAccountFromSyncEvent(_ctx, syncEvent.Histories);
+                await updateEvent.Push();
+            }
+            catch(Exception) {}
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

@@ -20,7 +20,7 @@ namespace client.Command
         private readonly string _url;
         private readonly AccountRepository _accRepo;
         private readonly DateTime? _lastSync;
-        private string InsertUrl => Path.Combine(_url, "AccountSync");
+        private string InsertUrl => $"{_url}/AccountSync";
 
         public AccountCommandHandler(ClientServerContext ctx, IHttpClientFactory clientFactory, string url)
         {
@@ -106,7 +106,12 @@ namespace client.Command
 
         private async Task<bool> SyncHistories(AccountSyncModel model)
         {
-            var syncEvent = new UpdateSyncEvent(_clientFactory, model, InsertUrl, _lastSync);
+            var syncEvent = new UpdateSyncEvent(_clientFactory,
+                                                new AccountSyncUpdateRequestModel
+                                                {
+                                                    History = model, LastSync = _lastSync
+                                                },
+                                                InsertUrl);
 
             if (await syncEvent.Push())
             {

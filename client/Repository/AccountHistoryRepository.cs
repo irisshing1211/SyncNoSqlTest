@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using client.Entities;
 using MongoDB.Driver;
@@ -22,9 +23,14 @@ namespace client.Repository
 
         public async Task<bool> AddHistories(List<AccountHistory> histories)
         {
-            await _ctx.AccountHistories.InsertManyAsync(histories);
+            try
+            {
+                if (histories.Any())
+                    await _ctx.AccountHistories.InsertManyAsync(histories);
 
-            return true;
+                return true;
+            }
+            catch (Exception ex) { return false; }
         }
 
         public async Task<bool> AddHistory(AccountHistory history)
