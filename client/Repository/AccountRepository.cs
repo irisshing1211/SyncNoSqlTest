@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using client.Entities;
 using MongoDB.Driver;
 
@@ -11,6 +13,8 @@ namespace client.Repository
 
         public AccountRepository(ClientServerContext ctx) { _ctx = ctx; }
         public Account GetOne(Guid id) => _ctx.Accounts.Find(a => a.Id == id).FirstOrDefault();
+        public async Task<List<Account>> GetAll() => await _ctx.Accounts.AsQueryable().ToListAsync();
+
         public bool Add(Account insert)
         {
             _ctx.Accounts.InsertOne(insert);
@@ -20,7 +24,8 @@ namespace client.Repository
 
         public bool Update(Account update)
         {
-            _ctx.Accounts.ReplaceOne(a=>a.Id==update.Id, update);
+            _ctx.Accounts.ReplaceOne(a => a.Id == update.Id, update);
+
             return true;
         }
 
@@ -30,9 +35,11 @@ namespace client.Repository
 
             return true;
         }
-        
-        public virtual void WriteLog(string msg, [CallerMemberName] string method = null,
-                                     [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
+
+        public virtual void WriteLog(string msg,
+                                     [CallerMemberName] string method = null,
+                                     [CallerFilePath] string sourceFilePath = "",
+                                     [CallerLineNumber] int sourceLineNumber = 0)
         {
             var controller = sourceFilePath.Substring(sourceFilePath.LastIndexOf("\\") + 1);
 
@@ -44,6 +51,7 @@ namespace client.Repository
                 Message = msg,
                 LogDate = DateTime.Now
             };
+
             _ctx.Logs.InsertOne(insert);
         }
     }

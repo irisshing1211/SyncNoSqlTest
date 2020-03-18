@@ -19,8 +19,10 @@ namespace client
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
-                {
+                { 
+                    webBuilder.UseUrls("http://*:5002");
                     webBuilder.UseStartup<Startup>();
+                 
                 });
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using client.Entities;
 using client.Models;
+using client.Query;
 using client.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,6 +35,7 @@ namespace client
             services.Configure<SyncSetting>(Configuration.GetSection(nameof(SyncSetting)));
             services.AddSingleton<ISyncSetting>(sp => sp.GetRequiredService<IOptions<SyncSetting>>().Value);
             services.AddSingleton<ClientServerContext>();
+            services.AddScoped<IQueryService<Account>, AccountQueryService>();
             services.AddHostedService<SyncService>();
             services.AddControllers().AddNewtonsoftJson();;
             services.AddSwaggerGen(c =>
